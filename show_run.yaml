@@ -1,0 +1,17 @@
+---
+- name: OBTENER SHOW RUNNING-CONFIG DEL ROUTER
+  hosts: CSR1kv
+  gather_facts: false
+  connection: local
+
+  tasks:
+    - name: EJECUTAR 'SHOW RUNNING-CONFIG'
+      ios_command:
+        commands:
+          - show running-config
+      register: resultado_run
+
+    - name: GUARDAR RUNNING-CONFIG EN ARCHIVO LOCAL
+      copy:
+        content: "{{ resultado_run.stdout[0] }}"
+        dest: "./show_run_{{ inventory_hostname }}.txt"
