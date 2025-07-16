@@ -1,0 +1,17 @@
+---
+- name: RESPALDO DE LA CONFIGURACION DEL ROUTER
+  hosts: CSR1kv
+  gather_facts: false
+  connection: local
+ 
+  tasks:
+   - name: EJECUTAR 'SHOW RUNNING-CONFIG'
+     ios_command:
+       commands:
+         - show running-config  
+     register: output
+ 
+   - name: Guardar respaldo en archivo
+     copy:
+       content: "{{ output.stdout[0] }}"
+       dest: "./respaldo_config{{inventory_hostname}}.txt"
