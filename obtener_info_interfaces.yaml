@@ -1,0 +1,23 @@
+---
+- name: OBTENER INFORMACIÓN DE INTERFACES IP/IPv6
+  hosts: CSR1kv
+  gather_facts: false
+  connection: local
+
+  tasks:
+    - name: EJECUTAR 'SHOW IP INTERFACE BRIEF'
+      ios_command:
+        commands:
+          - show ip interface brief
+      register: resultado_ipv4
+
+    - name: EJECUTAR 'SHOW IPV6 INTERFACE BRIEF'
+      ios_command:
+        commands:
+          - show ipv6 interface brief
+      register: resultado_ipv6
+
+    - name: GUARDAR RESULTADO IPv6 EN ARCHIVO
+      copy:
+        content: "{{ resultado_ipv6.stdout[0] }}{{ resultado_ipv4.stdout[0] }}"
+        dest: "./obtener_info_interfaces_{{ inventory_hostname }}.txt"
