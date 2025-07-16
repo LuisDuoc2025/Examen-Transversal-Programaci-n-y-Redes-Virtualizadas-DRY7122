@@ -1,0 +1,24 @@
+---
+- name: CONFIGURA IPv6 EN LOOPBACK33
+  hosts: CSR1kv
+  gather_facts: false
+  connection: local
+
+  tasks:
+   - name: Configurar Loopback33 con IPv6 y link-local 
+     ios_config:
+       parents: "interface Loopback33"
+       lines:
+         - description IPv6 ADDRESS
+         - ipv6 address 3001:ABCD:ABCD:1::1/128
+         - ipv6 address FE80::1 link-local
+   - name: Ejecutar 'show ipv6 interface brief'
+     ios_command:
+       commands:
+         - show ipv6 interface brief
+     register: output
+
+   - name: Guardar salida en archivo
+     copy: 
+       content: "{{ output.stdout[0] }}"
+       dest: "./crear-dir-ipv6 {{inventory_hostname}} .txt"
