@@ -1,0 +1,52 @@
+---
+- name: CONFIGURAR EIGRP TRANSVERSAL IPv4 e IPv6
+  hosts: CSR1kv
+  gather_facts: false
+  connection: local
+
+  tasks:
+    - name: HABILITAR IPv6 EN EL ROUTER
+      ios_config:
+        lines:
+          - ipv6 unicast-routing
+
+    - name: CONFIGURAR EIGRP NOMBRADO IPv4
+      ios_config:
+        lines:
+          - router eigrp EIGRP_TRANSVERSAL
+          - address-family ipv4 unicast autonomous-system 100
+          - af-interface default
+          - passive-interface
+          - exit-af-interface
+          - af-interface Loopback33
+          - no passive-interface
+          - exit-af-interface
+          - topology base
+          - exit-af-topology
+          - network 192.168.56.0
+          - exit-address-family
+
+    - name: CONFIGURAR EIGRP IPv6 CLÁSICO
+      ios_config:
+        lines:
+          - ipv6 router eigrp 100
+
+    - name: ACTIVAR EIGRP IPv6 EN LOOPBACK33
+      ios_config:
+        parents: interface Loopback33
+        lines:
+          - ipv6 eigrp 100
+
+    - name: MOSTRAR CONFIGURACIÓN EIGRP
+      ios_command:
+        commands:
+          - show running-config | section eigrp
+      register: resultado_eigrp
+
+    - name: GUARDAR CONFIGURACIÓN EN ARCHIVO
+      copy:
+        content: "{{ resultado_eigrp.stdout[0] }}"
+        dest: "./configurar_eigrp_{{ inventory_hostname }}.txt"
+
+
+
