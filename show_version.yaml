@@ -1,0 +1,17 @@
+---
+- name: OBTENER SHOW VERSION DEL ROUTER
+  hosts: CSR1kv
+  gather_facts: false
+  connection: local
+
+  tasks:
+    - name: EJECUTAR 'SHOW VERSION'
+      ios_command:
+        commands:
+          - show version
+      register: resultado_run
+
+    - name: GUARDAR SHOW VERSION EN ARCHIVO LOCAL
+      copy:
+        content: "{{ resultado_run.stdout[0] }}"
+        dest: "./show_version_{{ inventory_hostname }}.txt"
